@@ -1,0 +1,119 @@
+﻿@model CurrencyConversionRequestViewModel
+@using X.PagedList
+@using X.PagedList.Mvc.Core
+@using CurrencyConverter.Core.Models
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Converter</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Currency Conversion</h2>
+
+        <form method="post">
+            <div class="form-group">
+                <label for="ClientName">Client Name</label>
+                <input type="text" id="ClientName" name="ClientName" class="form-control" required />
+                @Html.ValidationMessageFor(f => f.ClientName, "", new { @class = "text-danger" })
+            </div>
+            <div class="form-group">
+                <label for="PersonalNumber">Personal Number</label>
+                <input type="text" id="PersonalNumber" name="PersonalNumber" class="form-control" maxlength="11" required />
+                @Html.ValidationMessageFor(f => f.PersonalNumber, "", new { @class = "text-danger" })
+            </div>
+            <div class="form-group">
+                <label for="FromCurrency">From Currency</label>
+                <select id="FromCurrency" name="FromCurrency" class="form-control" required>
+                    <option value="GEL">GEL</option>
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <option value="RUB">RUB</option>
+                </select>
+                @Html.ValidationMessageFor(m => m.FromCurrency, "", new { @class = "text-danger" })
+            </div>
+            <div class="form-group">
+                <label for="ToCurrency">To Currency</label>
+                <select id="ToCurrency" name="ToCurrency" class="form-control" required>
+                    <option value="GEL">GEL</option>
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <option value="RUB">RUB</option>
+                </select>
+                @Html.ValidationMessageFor(m => m.ToCurrency, "", new { @class = "text-danger" })
+            </div>
+            <div class="form-group">
+                <label for="Date">Date</label>
+                <input type="date" id="Date" name="Date" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label for="Amount">Amount</label>
+                <input type="number" id="Amount" name="Amount" class="form-control" step="0.01" required />
+            </div>
+            <button type="submit" class="btn btn-primary">Convert</button>
+        </form>
+
+        <!-- Button to manually update exchange rates -->
+        <form method="post" action="@Url.Action("UpdateExchangeRates")">
+            <button type="submit" class="btn btn-warning mt-3">Update Exchange Rates</button>
+        </form>
+
+        <!-- Transaction History -->
+        <h3 class="mt-5">Transaction History</h3>
+
+        @if (ViewBag.Transactions != null && ViewBag.Transactions.Count > 0)
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Client Name</th>
+                        <th>Personal Number</th>
+                        <th>From Currency</th>
+                        <th>To Currency</th>
+                        <th>Rate</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var transaction in ViewBag.Transactions)
+                    {
+                        <tr>
+                            <td>@transaction.ClientName</td>
+                            <td>@transaction.PersonalNumber</td>
+                            <td>@transaction.FromCurrency</td>
+                            <td>@transaction.ToCurrency</td>
+                            <td>@transaction.Rate</td>
+                            <td>@transaction.Date</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div id="transactionList" class="d-flex justify-content-center">
+                @Html.PagedListPager(
+                         (IPagedList)ViewBag.Transactions,
+                         page => Url.Action("Index", new { page }) + "#transactionList",
+                         new PagedListRenderOptions
+            {
+                LiElementClasses = new[] { "page-item" },
+                PageClasses = new[] { "page-link" }
+            })
+            </div>
+        }
+        else
+        {
+            <p>No transactions available.</p>
+        }
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
