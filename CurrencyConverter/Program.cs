@@ -4,8 +4,9 @@ using CurrencyConverter.Application.Services;
 using CurrencyConverter.Core.Interfaces;
 using CurrencyConverter.Infrastructure;
 using CurrencyConverter.Infrastructure.Repositories;
+using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace CurrencyConverter
 {
@@ -17,6 +18,13 @@ namespace CurrencyConverter
 
             // Add services to the container.
             var services = builder.Services;
+
+            services.AddHangfire(config => config
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSqlServerStorage(builder.Configuration.GetConnectionString("CurrencyConverterDb")));
+            services.AddHangfireServer();
+
             services.AddControllersWithViews();
 
             services.AddDbContext<CurrencyConverterDbContext>(options =>
@@ -43,12 +51,27 @@ namespace CurrencyConverter
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseHangfireDashboard();
+
+            var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
+            var backgroundJobClient = app.Services.GetRequiredService<IBackgroundJobClient>();
+
+            recurringJobManager.AddOrUpdate<CurrencyConversionService>(
+                "FetchAndStoreLatestExchangeRates",
+                service => service.FetchAndStoreLatestExchangeRatesAsync(),
+                Cron.Daily(2, 0)
+            );
+            backgroundJobClient.Enqueue<CurrencyConversionService>(
+                service => service.FetchAndStoreLatestExchangeRatesAsync()
+);
 
             app.UseAuthorization();
 
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=CurrencyConversion}/{action=Index}/{id?}");
+
+            
 
             app.Run();
         }

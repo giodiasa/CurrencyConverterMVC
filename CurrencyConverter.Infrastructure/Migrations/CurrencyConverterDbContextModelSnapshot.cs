@@ -42,7 +42,7 @@ namespace CurrencyConverter.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ExchangeRates");
+                    b.ToTable("ExchangeRates", (string)null);
                 });
 
             modelBuilder.Entity("CurrencyConverter.Core.Entities.Transaction", b =>
@@ -77,7 +77,7 @@ namespace CurrencyConverter.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Transactions");
+                    b.ToTable("Transactions", (string)null);
                 });
 #pragma warning restore 612, 618
         }
