@@ -43,6 +43,8 @@ namespace CurrencyConverter.Controllers
                 var result =  await _currencyConversionService.ConvertCurrencyAsync(model);
                 model.Rate = result.Rate;
                 await _transactionService.AddTransactionAsync(model);
+
+                ViewBag.ConversionResult = result;
             }
             ViewBag.Transactions = paginatedTransactions;
             return View(model);

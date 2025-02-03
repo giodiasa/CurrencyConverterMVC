@@ -15,7 +15,15 @@
 <body>
     <div class="container mt-5">
         <h2>Currency Conversion</h2>
-
+        @if (ViewBag.ConversionResult != null)
+        {
+            var result = ViewBag.ConversionResult as CurrencyConversionResponseViewModel;
+            <div class="alert alert-success mt-3">
+                <strong>Conversion Result:</strong><br />
+                Converted Amount: @result!.ConvertedAmount<br />
+                Exchange Rate Date: @result.ExchangeRateDate.ToString("yyyy-MM-dd")
+            </div>
+        }
         <form method="post">
             <div class="form-group">
                 <label for="ClientName">Client Name</label>
